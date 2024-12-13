@@ -1,27 +1,29 @@
 import { v4 as uuidv4 } from "uuid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { List } from "./list";
 import { ToDoAdd } from "./todo_add";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 export const ToDoList = () => {
-  const [toDos, setToDos] = useState([
-    { id: uuidv4(), text: "Read a book", complited: false },
-    { id: uuidv4(), text: "Eat a burger", complited: true },
-    { id: uuidv4(), text: "Buy flowers", complited: false },
-  ]);
+  const [toDos, setToDos] = useState([]);
 
-  const addNewToDo = (text) => {
-    const newToDo = {
-      id: uuidv4(),
-      text: text,
-      complited: false,
-    };
-    setToDos([...toDos, newToDo]);
+  useEffect(() => {
+    axios.get("http://localhost:4000/todos").then((res) => {
+      setToDos(res.data)
+    });
+  }, []);
+
+  const addNewToDo = (newTodo) => {
+  
+    setToDos([...toDos, newTodo]);
   };
 
   const deleteTodo = (item) => {
     const filtered = toDos.filter((todo) => todo.id !== item.id);
     setToDos(filtered);
+    toast("The todo has been deleted.");
   };
 
   const complitedToDo = (id) => {
@@ -38,6 +40,7 @@ export const ToDoList = () => {
       </h1>
       <ToDoAdd onAdd={addNewToDo} />
       <List items={toDos} onDelete={deleteTodo} onComplited={complitedToDo} />
+      <ToastContainer />
     </div>
   );
 };
